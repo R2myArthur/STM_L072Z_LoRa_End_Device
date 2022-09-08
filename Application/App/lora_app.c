@@ -110,6 +110,8 @@ static void OnRxTimerLedEvent(void *context);
   */
 static void OnJoinTimerLedEvent(void *context);
 
+static void OnDBGTimerEvent(void *context);	//###
+
 /* USER CODE END PFP */
 
 /* Private variables ---------------------------------------------------------*/
@@ -145,6 +147,7 @@ static LmHandlerParams_t LmHandlerParams =
   * @brief Timer to handle the application Tx Led to toggle
   */
 static UTIL_TIMER_Object_t TxLedTimer;
+static UTIL_TIMER_Object_t DBGTimer;	//###
 
 /**
   * @brief Timer to handle the application Rx Led to toggle
@@ -172,6 +175,7 @@ void LoRaWAN_Init(void)
   LED_Init(LED_BLUE);
   LED_Init(LED_RED1);
   LED_Init(LED_RED2);
+//  BSP_DBG_Init(GPIO_PIN_13);
 
   /* Get LoRa APP version*/
   APP_LOG(TS_OFF, VLEVEL_M, "APP_VERSION:        V%X.%X.%X\r\n",
@@ -194,9 +198,11 @@ void LoRaWAN_Init(void)
   UTIL_TIMER_Create(&TxLedTimer, 0xFFFFFFFFU, UTIL_TIMER_ONESHOT, OnTxTimerLedEvent, NULL);
   UTIL_TIMER_Create(&RxLedTimer, 0xFFFFFFFFU, UTIL_TIMER_ONESHOT, OnRxTimerLedEvent, NULL);
   UTIL_TIMER_Create(&JoinLedTimer, 0xFFFFFFFFU, UTIL_TIMER_PERIODIC, OnJoinTimerLedEvent, NULL);
+
   UTIL_TIMER_SetPeriod(&TxLedTimer, 500);
   UTIL_TIMER_SetPeriod(&RxLedTimer, 500);
   UTIL_TIMER_SetPeriod(&JoinLedTimer, 500);
+
 
   /* USER CODE END LoRaWAN_Init_1 */
 
@@ -210,6 +216,12 @@ void LoRaWAN_Init(void)
   LmHandlerInit(&LmHandlerCallbacks);
 
   LmHandlerConfigure(&LmHandlerParams);
+
+  /* ### Timer for debug ### */
+//  AT_PRINTF("Lora_app: Test print\n");	//###
+  UTIL_TIMER_Create(&DBGTimer, 0xFFFFFFFFU, UTIL_TIMER_PERIODIC, OnDBGTimerEvent, NULL); //##
+  UTIL_TIMER_SetPeriod(&DBGTimer, 5);	//###
+  UTIL_TIMER_Start(&DBGTimer);	//###
 
   /* USER CODE BEGIN LoRaWAN_Init_Last */
   UTIL_TIMER_Start(&JoinLedTimer);
@@ -234,7 +246,7 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
   /* USER CODE BEGIN OnRxData_1 */
   if ((appData != NULL) || (params != NULL))
   {
-    LED_On(LED_BLUE);
+    //LED_On(LED_BLUE);	//###
 
     UTIL_TIMER_Start(&RxLedTimer);
 
@@ -251,7 +263,7 @@ static void OnTxTimerLedEvent(void *context)
 
 static void OnRxTimerLedEvent(void *context)
 {
-  LED_Off(LED_BLUE) ;
+//  LED_Off(LED_BLUE) ;
 }
 
 static void OnJoinTimerLedEvent(void *context)
@@ -259,6 +271,20 @@ static void OnJoinTimerLedEvent(void *context)
   LED_Toggle(LED_RED1) ;
 }
 
+static void OnDBGTimerEvent(void *context)	//###
+{
+	// Get the state of the Lora Mac of the device
+	uint32_t mac_state = LoRaMacGetMacState();
+
+	if ( mac_state == 2 )
+	{
+		LED_On(LED_BLUE) ;
+	}
+	else
+	{
+		LED_Off(LED_BLUE) ;
+	}
+}
 /* USER CODE END PrFD_LedEvents */
 
 static void OnTxData(LmHandlerTxParams_t *params)
