@@ -767,7 +767,8 @@ static void ProcessRadioTxDone( void )
     TimerSetValue( &MacCtx.RxWindowTimer2, MacCtx.RxWindow2Delay );
     TimerStart( &MacCtx.RxWindowTimer2 );
 
-    if( ( Nvm.MacGroup2.DeviceClass == CLASS_C ) || ( MacCtx.NodeAckRequested == true ) )
+//    if( ( Nvm.MacGroup2.DeviceClass == CLASS_C ) || ( MacCtx.NodeAckRequested == true ) )
+    if( ( Nvm.MacGroup2.DeviceClass == CLASS_C ) && ( MacCtx.NodeAckRequested == true ) ) //###
     {
         getPhy.Attribute = PHY_ACK_TIMEOUT;
         phyParam = RegionGetPhyParam( Nvm.MacGroup2.Region, &getPhy );
@@ -1301,8 +1302,9 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
                 MacCtx.McpsConfirm.Status = rx2EventInfoStatus;
             }
             LoRaMacConfirmQueueSetStatusCmn( rx2EventInfoStatus );
-
-            if( Nvm.MacGroup2.DeviceClass != CLASS_C )
+        	//###
+//            if( Nvm.MacGroup2.DeviceClass != CLASS_C )
+            if( (Nvm.MacGroup2.DeviceClass != CLASS_C) || ((Nvm.MacGroup2.DeviceClass == CLASS_C) && (MacCtx.NodeAckRequested == false)) )	//###
             {
                 MacCtx.MacFlags.Bits.MacDone = 1;
             }
