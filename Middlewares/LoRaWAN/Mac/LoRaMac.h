@@ -2804,6 +2804,9 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest, bool allowDelayedTx 
  */
 LoRaMacStatus_t LoRaMacDeInitialization( void );
 
+
+uint32_t LoRaMacGetMacState( void ); //###
+
 /*! \} defgroup LORAMAC */
 
 #ifdef __cplusplus

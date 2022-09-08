@@ -4888,3 +4888,10 @@ LoRaMacStatus_t LoRaMacDeInitialization( void )
         return LORAMAC_STATUS_BUSY;
     }
 }
+
+//###
+uint32_t LoRaMacGetMacState( void ) //###
+{
+	return MacCtx.MacState;
+}
+//###
